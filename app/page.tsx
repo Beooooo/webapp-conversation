@@ -7,6 +7,7 @@ import Main from '@/app/components'
 const App: FC<IMainProps> = ({
   params,
 }: any) => {
+
   return (
     <Main params={params} />
   )
