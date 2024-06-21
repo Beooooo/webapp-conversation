@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 'use client'
-import type { FC } from 'react'
-import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import produce, { setAutoFreeze } from 'immer'
-import { useBoolean, useGetState } from 'ahooks'
-import useConversation from '@/hooks/use-conversation'
+import AppUnavailable from '@/app/components/app-unavailable'
+import Loading from '@/app/components/base/loading'
 import Toast from '@/app/components/base/toast'
-import Sidebar from '@/app/components/sidebar'
+import Chat from '@/app/components/chat'
 import ConfigSence from '@/app/components/config-scence'
-import Header from '@/app/components/header'
+import Sidebar from '@/app/components/sidebar'
+import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
+import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+import useConversation from '@/hooks/use-conversation'
+import { setLocaleOnClient } from '@/i18n/client'
 import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
-import Chat from '@/app/components/chat'
-import { setLocaleOnClient } from '@/i18n/client'
-import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
-import Loading from '@/app/components/base/loading'
-import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
-import AppUnavailable from '@/app/components/app-unavailable'
-import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
+import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import { useBoolean, useGetState } from 'ahooks'
+import produce, { setAutoFreeze } from 'immer'
+import type { FC } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -47,7 +47,7 @@ const Main: FC = () => {
 
   useEffect(() => {
     if (APP_INFO?.title)
-      document.title = `${APP_INFO.title} - Powered by Dify`
+      document.title = `${APP_INFO.title}`
   }, [APP_INFO?.title])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
@@ -598,7 +598,6 @@ const Main: FC = () => {
         list={conversationList}
         onCurrentIdChange={handleConversationIdChange}
         currentId={currConversationId}
-        copyRight={APP_INFO.copyright || APP_INFO.title}
       />
     )
   }
@@ -607,29 +606,16 @@ const Main: FC = () => {
     return <AppUnavailable isUnknwonReason={isUnknwonReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
   if (!APP_ID || !APP_INFO || !promptConfig)
-    return <Loading type='app' />
+    return <div></div>
 
   return (
-    <div className='bg-gray-100'>
-      <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      />
-      <div className="flex rounded-t-2xl bg-white overflow-hidden">
+    <div className='flex h-dvh'>
+      <div className='relative z-0 flex h-full w-full overflow-hidden'>
         {/* sidebar */}
-        {!isMobile && renderSidebar()}
-        {isMobile && isShowSidebar && (
-          <div className='fixed inset-0 z-50'
-            style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
-            onClick={hideSidebar}
-          >
-            <div className='inline-block' onClick={e => e.stopPropagation()}>
-              {renderSidebar()}
-            </div>
-          </div>
-        )}
+        <div className='nav active max-w-[300px] flex-shrink-0 overflow-x-hidden bg-gray-50 dark:bg-gray-850'>
+          {!isMobile && renderSidebar()}
+        </div>
+
         {/* main */}
         <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
           <ConfigSence
@@ -642,22 +628,22 @@ const Main: FC = () => {
             canEidtInpus={canEditInpus}
             savedInputs={currInputs as Record<string, any>}
             onInputsChange={setCurrInputs}
-          ></ConfigSence>
+          />
 
-          {
-            hasSetInputs && (
-              <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
-                <div className='h-full overflow-y-auto' ref={chatListDomRef}>
-                  <Chat
-                    chatList={chatList}
-                    onSend={handleSend}
-                    onFeedback={handleFeedback}
-                    isResponsing={isResponsing}
-                    checkCanSend={checkCanSend}
-                    visionConfig={visionConfig}
-                  />
-                </div>
-              </div>)
+          {hasSetInputs && (
+            <div className='relative grow h-[200px]  max-w-full w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
+              <div className='h-full overflow-y-auto px-36' ref={chatListDomRef}>
+                <Chat
+                  chatList={chatList}
+                  onSend={handleSend}
+                  onFeedback={handleFeedback}
+                  isResponsing={isResponsing}
+                  checkCanSend={checkCanSend}
+                  visionConfig={visionConfig}
+                />
+              </div>
+            </div>
+          )
           }
         </div>
       </div>

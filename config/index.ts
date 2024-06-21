@@ -4,7 +4,7 @@ export const API_KEY = `app-XaRdYfJoqiBIMiHymMg1muCR`
 export const API_URL = `https://api.dify.ai/v1`
 
 export const APP_INFO: AppInfo = {
-  title: 'Chat APP',
+  title: 'CHAT DEMO',
   description: '',
   copyright: '',
   privacy_policy: '',
