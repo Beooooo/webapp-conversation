@@ -612,7 +612,7 @@ const Main: FC = () => {
     <div className='flex h-dvh'>
       <div className='relative z-0 flex h-full w-full overflow-hidden'>
         {/* sidebar */}
-        <div className='nav active max-w-[300px] flex-shrink-0 overflow-x-hidden bg-gray-50 dark:bg-gray-850'>
+        <div className='nav active w-[280px] flex-shrink-0 overflow-x-hidden bg-gray-50 dark:bg-gray-850'>
           {!isMobile && renderSidebar()}
         </div>
 
